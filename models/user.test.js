@@ -1,7 +1,5 @@
 "use strict";
 
-const Job = require("./job");
-
 const {
   NotFoundError,
   BadRequestError,
@@ -231,40 +229,3 @@ describe("remove", function () {
   });
 });
 
-/**************************************** applyToJob */
-
-describe("apply to job", () => {
-
-  test("add job application to db", async () => {
-    const job = await Job.findAll();
-    const {id} = job[0] 
-    const jobApp = {
-      username: "u1", 
-      jobId : id
-    }
-
-    const results = await User.applyToJob(jobApp)
-    expect(results).toEqual({applied : id})
-  })
-
-  test("test reject double entry", async () => {
-    const job = await Job.findAll();
-    const {id} = job[0] 
-    const jobApp = {
-      username: "u1", 
-      jobId : id
-    }
-
-    const firstReq = await User.applyToJob(jobApp)
-    expect(firstReq).toEqual({applied : id})
-
-    try{
-      const secondReq = await User.applyToJob(jobApp)
-    } catch (err){
-      expect(err instanceof BadRequestError).toBeTruthy;
-    }
-
-
-  })
-
-})

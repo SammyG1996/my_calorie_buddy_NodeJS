@@ -118,28 +118,12 @@ class User {
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name, state }
-   * 
-   * It will also show any applications that this user has applied for
+   *   where username matches given username
    *
    * Throws NotFoundError if user not found.
    **/
 
   static async get(username) {
-    // const userRes = await db.query(
-    //   `SELECT to_json(res)from(
-    //     SELECT u.username, 
-    //            u.first_name AS "firstName", 
-    //            u.last_name AS "lastName", 
-    //            u.email, 
-    //            u.is_admin AS "isAdmin", 
-    //            to_json(a) "applications"
-    //            FROM users u
-    //            LEFT OUTER JOIN applications a
-    //            ON u.username = a.username
-               
-    //   ) res;`, []);
-
     const userRes = await db.query(
       `SELECT username,
               first_name AS "firstName",
@@ -171,9 +155,6 @@ class User {
    *
    * Throws NotFoundError if not found.
    *
-   * WARNING: this function can set a new password or make a user an admin.
-   * Callers of this function must be certain they have validated inputs to this
-   * or a serious security risks are opened.
    */
 
   static async update(username, data) {
@@ -221,69 +202,6 @@ class User {
     const user = result.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
-  }
-
-  /** Creates a SQL query to insert the a job application into the applications table 
-   * Take 2 params {username, jobId}
-   * 
-   * If there is already an application for a job linked to a user an error will be thrown
-   * 
-   * If not it will insert into the table and return:
-   * 
-   * {
-   * applied : jobId
-   * }
-  */
-
-  static async applyToJob({username, jobId}){
-
-    const duplicateCheck = await db.query(
-        `SELECT username
-        FROM applications
-        WHERE job_id = $1 AND username = $2`,
-      [jobId, username],
-    );
-
-    if (duplicateCheck.rows[0]) {
-      throw new BadRequestError(`Duplicate application: ${username, jobId}`);
-    }
-
-
-    let result = await db.query(
-      `INSERT INTO applications
-      (username,
-        job_id)
-      VALUES ($1, $2)
-      RETURNING username, job_id AS "jobId"`,
-    [
-      username,
-      jobId
-    ])
-
-    const jobApplication = {applied :result.rows[0].jobId};
-
-    return jobApplication;
-  }
-
-
-
-
-  static async getJobApplications(username){
-
-    const result = await db.query(
-        `SELECT job_id
-        FROM applications
-        WHERE username = $1`,
-      [username],
-    );
-
-    console.log(result)
-
-    const jobs = result.rows
-
-    if(!jobs) throw new NotFoundError(`No job applications for: ${username}`);
-
-    return jobs
   }
 
 }

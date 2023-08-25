@@ -1,21 +1,13 @@
 "use strict";
 
 const db = require("../db");
-const bcrypt = require("bcrypt");
-const { sqlForPartialUpdate } = require("../helpers/sql");
-const {
-  NotFoundError,
-  BadRequestError,
-  UnauthorizedError,
-} = require("../expressError");
+const { NotFoundError } = require("../expressError");
 
-const { BCRYPT_WORK_FACTOR } = require("../config.js");
-
-/** Related functions for users. */
+/** Related functions for Logs. */
 
 class Logs {
 
-  /** Find all users.
+  /** Find all logs for a specific user.
    *
    * Returns [{ username, first_name, last_name, email, is_admin }, ...]
    **/
@@ -53,15 +45,13 @@ class Logs {
     if (!item) throw new NotFoundError(`No Log Found`);
   }
 
-  /** Creates a SQL query to insert the a job application into the applications table 
-   * Take 2 params {username, jobId}
+  /** Creates a SQL query to insert of a food log into the applications table 
+   * Take 8 params {name, servingSize, calories, protein, carbohydrates, fats, username, date}
    * 
-   * If there is already an application for a job linked to a user an error will be thrown
-   * 
-   * If not it will insert into the table and return:
+   * If succesful it will insert into the table and return:
    * 
    * {
-   * applied : jobId
+   * Added : name
    * }
   */
 

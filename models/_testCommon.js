@@ -1,23 +1,11 @@
 const bcrypt = require("bcrypt");
-// const { createToken } = require("../helpers/tokens");
-const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = require("../config");
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
-  await db.query("DELETE FROM companies");
-  // noinspection SqlWithoutWhere
   await db.query("DELETE FROM users");
 
-  await db.query("DELETE FROM jobs");
-
-  await db.query(`
-    INSERT INTO companies(handle, name, num_employees, description, logo_url)
-    VALUES ('c1', 'C1', 1, 'Desc1', 'http://c1.img'),
-           ('c2', 'C2', 2, 'Desc2', 'http://c2.img'),
-           ('c3', 'C3', 3, 'Desc3', 'http://c3.img')`);
 
   await db.query(`
         INSERT INTO users(username,
@@ -33,30 +21,6 @@ async function commonBeforeAll() {
         await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
         await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
       ]);
-
-
-  await db.query(`
-      INSERT INTO jobs(title, 
-                      salary, 
-                      equity, 
-                      company_handle)
-      VALUES ('test1', 126000, null, 'c1')
-      RETURNING id, title, salary, equity, company_handle AS "companyHandle"
-  `)
-
-  await db.query(`
-  INSERT INTO jobs
-           (title, salary, equity, company_handle)
-           VALUES ('test2', 100000, 1, 'c2')
-           RETURNING id, title, salary, equity, company_handle AS "companyHandle"
-  `)
-
-  await db.query(`
-  INSERT INTO jobs
-           (title, salary, equity, company_handle)
-          VALUES ('test3', 50000, null, 'c3')
-           RETURNING id, title, salary, equity, company_handle AS "companyHandle"
-  `)
 
 }
 

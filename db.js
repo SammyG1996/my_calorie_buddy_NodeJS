@@ -1,5 +1,5 @@
 "use strict";
-/** Database setup for jobly. */
+/** Database setup for my calorie buddy. */
 const { Client } = require("pg");
 // const {Pool} = require("pg");
 const { getDatabaseUri } = require("./config");

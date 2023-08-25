@@ -4,12 +4,9 @@
 
 const jsonschema = require("jsonschema");
 const express = require("express");
-const { ensureLoggedIn, authenticateJWT } = require("../middleware/auth");
+const { ensureLoggedIn } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const Logs = require("../models/logs");
-const { createToken } = require("../helpers/tokens");
-const userNewSchema = require("../schemas/userNew.json");
-const userUpdateSchema = require("../schemas/userUpdate.json");
 const router = express.Router();
 const logAddSchema = require("../schemas/logAdd.json")
 
@@ -27,19 +24,15 @@ router.get("/:username/:date", ensureLoggedIn, async function (req, res, next) {
   /**This will allow you to add an entry  */
   router.post("/:username", ensureLoggedIn, async function (req, res, next) {
     try {
-      const validator = jsonschema.validate(req.body, logAddSchema);
-      if (!validator.valid) {
+      const validator = jsonschema.validate(req.body, logAddSchema); /**Validates the req.body against the schema validator */
+      if (!validator.valid) { /**if its not valid it will reject */
         const errs = validator.errors.map(e => e.stack);
         throw new BadRequestError(errs);
       }
-      
+      /**If it is valid all the feilds are extracted by deconstruction and then passed to helper functions to connect to database */
       const {name, serving_size, calories, protein, carbohydrates, fats, username, date} = req.body 
-      console.log('*************************************')
-      console.log(req.body)
       const insertion = await Logs.add(name, serving_size, calories, protein, carbohydrates, fats, username, date)
-    //   const company = await Company.create(req.body);
-    //   return res.status(201).json({ company });
-        return res.status(201).json({"success" : insertion})
+      return res.status(201).json({"success" : insertion}) /**if successful a response is sent back */
 
     } catch (err) {
       return next(err);

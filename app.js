@@ -1,6 +1,6 @@
 "use strict";
 
-/** Express app for jobly. */
+/** Express app for My Calorie Buddy. */
 
 const express = require("express");
 const cors = require("cors");

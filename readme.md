@@ -1,6 +1,6 @@
-# Jobly Backend
+# My Calorie Buddy Backend
 
-This is the Express backend for Jobly, version 2.
+This is the Express backend for my calorie buddy
 
 To run this:
 
