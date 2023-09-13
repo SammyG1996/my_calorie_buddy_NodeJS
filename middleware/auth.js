@@ -3,8 +3,12 @@
 /** Convenience middleware to handle common auth cases in routes. */
 
 const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = require("../config");
+const { SECRET_KEY, CLIENT_ID } = require("../config");
 const { UnauthorizedError } = require("../expressError");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(CLIENT_ID); // Replace CLIENT_ID with your actual client ID
+
+
 
 
 /** Middleware: Authenticate user.
@@ -19,6 +23,8 @@ function authenticateJWT(req, res, next) {
   
   try {
     const authHeader = req.headers && req.headers.authorization;
+    console.log(req.headers)
+    console.log(req.headers.authorization)
 
     if (authHeader) {
       const token = authHeader.replace(/^[Bb]earer /, "").trim();
@@ -58,7 +64,33 @@ function ensureLoggedIn(req, res, next) {
 }
 
 
+/**
+ * Middleware to use when you need to authenticate a Google JWT token
+ * 
+ */
+
+async function verifyGoogleToken(req, res, next) {
+  try {
+    const token = req.body.credential
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: CLIENT_ID, // Replace CLIENT_ID with your actual client ID
+    });
+    const payload = ticket.getPayload();
+    // Check if the user's email is verified and any other necessary checks
+    if (payload.email_verified) {
+      return next();
+    } else {
+      throw new UnauthorizedError();
+    }
+  } catch (err) {
+    return next(err)
+  }
+}
+
+
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  verifyGoogleToken
 };

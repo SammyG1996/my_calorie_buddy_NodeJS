@@ -49,6 +49,37 @@ class User {
     throw new UnauthorizedError("Invalid username/password");
   }
 
+    /** authenticate user with username, password.
+   *
+   * Returns { username, first_name, last_name, email, is_admin }
+   *
+   * Throws UnauthorizedError is user not found or wrong password.
+   **/
+
+    static async getUserDataAfterOAuth(email) {
+      // try to find the user first
+      const result = await db.query(
+            `SELECT username,
+                    first_name AS "firstName",
+                    last_name AS "lastName",
+                    email,
+                    is_admin AS "isAdmin"
+             FROM users
+             WHERE email = $1`,
+          [email],
+      );
+  
+      const user = result.rows[0];
+  
+      if (user) {
+        // If user exits then return the user
+          return user;
+      }
+      // Else if user doesnt exist send message to sign up
+      throw new UnauthorizedError("User doesn't exist, please sign up");
+    }
+  
+
   /** Register user with data.
    *
    * Returns { username, firstName, lastName, email, isAdmin }
@@ -58,15 +89,23 @@ class User {
 
   static async register(
       { username, password, firstName, lastName, email, isAdmin }) {
-    const duplicateCheck = await db.query(
+    const usernameDuplicateCheck = await db.query(
           `SELECT username
            FROM users
            WHERE username = $1`,
         [username],
     );
+    const emailDuplicateCheck = await db.query(
+      `SELECT email
+       FROM users
+       WHERE email = $1`,
+    [email],
+);
 
-    if (duplicateCheck.rows[0]) {
-      throw new BadRequestError(`Duplicate username: ${username}`);
+    if (usernameDuplicateCheck.rows[0]) {
+      throw new BadRequestError(`${username} already has an account, please sign in`);
+    } else if(emailDuplicateCheck.rows[0]){
+      throw new BadRequestError(`${email} already has an account, please sign in`);
     }
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);

@@ -7,6 +7,8 @@ require("colors");
 
 const SECRET_KEY = process.env.SECRET_KEY || "secret-dev";
 
+const CLIENT_ID = process.env.CLIENT_ID
+
 const PORT = process.env.PORT || 3001;
 
 // Use dev database, testing database, or via env var, production database
@@ -33,4 +35,5 @@ module.exports = {
   PORT,
   BCRYPT_WORK_FACTOR,
   getDatabaseUri,
+  CLIENT_ID
 };
