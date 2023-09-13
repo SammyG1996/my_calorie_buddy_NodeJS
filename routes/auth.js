@@ -38,20 +38,12 @@ router.post("/token", async function (req, res, next) {
 });
 
 
-/**
- * steps 
- * 1. check middleware to see if google oauth is valid (DONE)
- * 2. decode the TOKEN to retrieve the email (DONE)
- * 3. next create a User.oauth() that will check to see if the email exists in the system, and if it does, 
- * create a return object with all of the same info that would come back from the traditional User.authenticate() (DONE
- * 4. Next feed that info into the createToken() function to create a thats to be sent back from our server (this is 
- * the token going forward that will be used to verify the user is logged in) (DONE)
- * 5. Finally make sure to res.json({ token }); (DONE
+/** POST /auth/oauth:  { Google JWT } => { token, username }
  * 
- * BEFORE PUSHING TO GITHUB:
- * GO INTO THE CONFIG FILE AND ENSURE THAT THE PROCESS.ENV.CLIENT_ID IS SET TO CLIENT_ID AND REMOVE THE ACTAUL CLIENT_ID FROM THE CODE
+ * After verifying Googles JWT the user is found and then a new JWT token is return with the username 
+ * which can be used to authenticate further requests
  * 
- * 
+ * Authorization required: none
  * 
  */
 router.post("/oauth", verifyGoogleToken, async function (req, res, next) {
